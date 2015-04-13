@@ -70,6 +70,7 @@
         - khan/khan-linter
         - khan/libphutil
         - khan/arcanist
+        - khan/git-bigfile
 
     - name: clone the dotfiles repo so we can nab some files from it
       git: repo='https://github.com/khan/khan-dotfiles.git' dest='{{ka.dest}}/khan-dotfiles'
