@@ -57,7 +57,9 @@
 
     # get the main webapp (can't actually see it yet, so flying blind here)
     - name: clone the main KA webapp repo
-      git: repo=https://github.com/khan/webapp.git dest={{ka.dest}}/webapp
+      git: repo=https://github.com/khan/webapp.git
+           dest={{ka.dest}}/webapp
+           update=no
       ignore_errors: yes #private repo
 
     # there are a bunch of CLI devtools that just get cloned to localhost, later
