@@ -96,6 +96,14 @@
         - webapp
         - khan-dotfiles
 
+    - name: install commit template for specified repos
+      command: git config --local commit.template {{ka.dest}}/khan-dotfiles/.git_template/commit_template
+      args:
+        chdir: "{{ka.dest}}/{{item}}"
+      with_items:
+        - webapp
+        - khan-dotfiles
+
     # TODO: override user.email to be @khanacademy.org ALL khan repos
     # TODO: only execute first time after cloning repo?
     - name: override user.email for KA webapp
