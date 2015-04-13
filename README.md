@@ -33,11 +33,9 @@ and appropriate for general use.
 ## Installation
 
 Ensure you have [Homebrew] and [Ansible] installed (maybe [bootslap] did that
-for you?), then run `make install`, which really does the following:
+for you?), then run `make install`.
 
-    ansible-playbook -i 'localhost,' --connection=local khan.yml
-
-Designed to be idemmnopotent, and can be run multiple times.
+Designed to be idempotent, and can be run multiple times.
 
 Since this is for pre-existing workstations, assumes you already have a working
 dev setup on your machine, for example a  generated SSH key that has been added
@@ -49,7 +47,7 @@ to your GitHub account.
 
 So sad. Then this is probably useless to you. But we like to open source
 everything as much as possible, so there is no reason to keep this secret. Want
-to work at a place like that? [We're probably hiring!][careers].
+to work at a place like that? [We're probably hiring!][careers]
 
 ### Why not a Vagrant VM?
 
