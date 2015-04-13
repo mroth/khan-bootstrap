@@ -60,7 +60,7 @@
     - gem:      name=bundler    state=present # bundler for rubygems
     - homebrew: name=node       state=present # node for npm modules
 
-    # get the main webapp (can't actually see it yet, so flying blind here)
+    # get the main webapp
     - name: clone the main KA webapp repo
       git: repo=https://github.com/khan/webapp.git
            dest={{ka.dest}}/webapp
@@ -104,22 +104,24 @@
         chdir: "{{ka.dest}}/webapp"
 
 
-    # DEPRECATED: make a virtualenv for KA dev, so anything installed can easily be blown away
-    # not needed as it seems this automatically happens with ansible first time used (boss!)
-    # - name: create khan virtualenv
-    #   command: virtualenv -p python2.7 --no-site-packages {{ka.venv}} creates={{ka.venv}}
+    - name: pip requirements for khan webapp
+      pip: requirements='{{ka.dest}}/webapp/{{item}}' virtualenv={{ka.venv}}
+      with_items:
+        - requirements.darwin.txt
+        - requirements.txt
 
-    # TODO: this one is a makefile, need to be able to see it first!
-    # urgh, this is a setup script I think? Probably need to make sure venv is activated
-    # or it will clobber stuff?
-    # - name: requirements for khan webapp
-    # ( cd "$ROOT/khan/webapp" && make install_deps )
+    - name: npm deps for khan webapp and linter
+      npm: path={{ka.dest}}/{{item}}
+      with_items:
+        - webapp
+        - webapp/third_party/khan_linter
+        - devtools/khan-linter
 
-    - name: bootstrap requirements for khan exercises
+    - name: pip requirements for khan exercises
       pip: requirements='{{ka.dest}}/webapp/khan-exercises/requirements.txt' virtualenv={{ka.venv}}
       ignore_errors: yes # private repo
 
-    - name: bootstrap requirements for khan linter
+    - name: pip requirements for khan linter
       pip: requirements='{{ka.dest}}/devtools/khan-linter/requirements.txt' virtualenv={{ka.venv}}
 
     - name: install pyprof2calltree for profiling
