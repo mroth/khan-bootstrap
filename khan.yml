@@ -29,6 +29,13 @@
       with_items:
         -  hipchat # otherwise known as "not slack"
 
+- name: Make sure a specific version of phantomjs is present for testing
+  hosts: all
+  tasks:
+    - homebrew_tap: tap=homebrew/versions   state=present
+    - homebrew:     name=phantomjs          state=absent
+    - homebrew:     name=phantomjs198       state=present
+
 - name: Setup a python environment for KA web development
   hosts: all
   tags:
@@ -52,8 +59,6 @@
     - pip:      name=virtualenv state=present # virtualenv to manage py env
     - gem:      name=bundler    state=present # bundler for rubygems
     - homebrew: name=node       state=present # node for npm modules
-
-    # TODO: specific version of phantomjs
 
     # get the main webapp (can't actually see it yet, so flying blind here)
     - name: clone the main KA webapp repo
