@@ -88,6 +88,14 @@
         - { src: 'no-commit-to-master', dest: 'pre-commit' }
         - { src: 'no-push-to-master',   dest: 'pre-push' }
 
+    - name: make khan-linter a commit-msg hook for all KA repos
+      file: src={{ka.dest}}/devtools/khan-linter/githook.py
+            dest={{ka.dest}}/{{item}}/.git/hooks/commit-msg
+            state=link
+      with_items:
+        - webapp
+        - khan-dotfiles
+
     # TODO: override user.email to be @khanacademy.org ALL khan repos
     # TODO: only execute first time after cloning repo?
     - name: override user.email for KA webapp
