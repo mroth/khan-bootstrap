@@ -78,6 +78,7 @@
     # TODO: install hooks to prevent dangerous things in main repo
 
     # TODO: override user.email to be @khanacademy.org ALL khan repos
+    # TODO: only execute first time after cloning repo?
     - name: override user.email for KA webapp
       command: git config --local user.email {{ka.email}}
       args:
