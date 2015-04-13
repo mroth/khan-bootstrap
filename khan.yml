@@ -108,3 +108,8 @@
 
     - name: bootstrap requirements for khan linter
       pip: requirements='{{ka.dest}}/devtools/khan-linter/requirements.txt' virtualenv={{ka.venv}}
+
+    - name: install boto for git-bigfile
+      pip: name=boto virtualenv={{ka.venv}}
+    # TODO: check for S3 credentials needed by bigfile, give manual setup
+    # instructions if not found.
