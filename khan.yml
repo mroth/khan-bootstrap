@@ -1,0 +1,100 @@
+# Sets up a *minimal* dev environment for KA developers (or just me)
+#
+# Goal is to be extremely sensitive to trying to keep the KA stuff isolated from
+# everything else, for devs who do a lot of open source development, you might
+# not want KA specific things in global githook templates, for example, which
+# was the first thing I spotted.
+#
+# This is similar to what khan-dotfiles does, with slightly different design
+# goals informing it:
+#  - Don't do any "preferences", let the user manage their own dotfiles
+#  - Only add dependencies, not shortcuts (can add those manually as I want them)
+#  - more...
+#
+# Note to KA devs: Like the rest of bootslap, this is Mac-only for now, but
+# could be made generic with not too much effort.
+---
+- name: make sure homebrew cask is installed and tapped
+  hosts: all
+  sudo: false
+  tasks:
+    - homebrew_tap: tap=caskroom/cask   state=present
+    - homebrew:     name=brew-cask      state=present
+
+- name: Non-development stuff
+  hosts: all
+  tasks:
+    - name: install GUI applications
+      homebrew_cask: state=present name={{item}}
+      with_items:
+        -  hipchat # otherwise known as "not slack"
+
+- name: Setup a python environment for KA web development
+  hosts: all
+  tags:
+    - khan
+  vars:
+    ka:
+      dest: ~/src/khan
+      venv: ~/.virtualenv/khan27
+      # assumes your local userid is same as your KA email, override var if not
+      email: "{{ansible_user_id}}@khanacademy.org"
+
+  tasks:
+    # instead of easy_installing pip, use the homebrew provided python which
+    # already includes it. this way we always have the most recent version of
+    # python27 anyhow instead of depending on whatever OSX provides, and gives
+    # a more sudo-less environment.
+    - name: install brew python27 (includes pip)
+      homebrew: name=python  state=present
+
+    # other precursor platforms required for KA deps (mostly pkg mgrs)
+    - pip:      name=virtualenv state=present # virtualenv to manage py env
+    - gem:      name=bundler    state=present # bundler for rubygems
+    - homebrew: name=node       state=present # node for npm modules
+
+    # TODO: specific version of phantomjs
+
+    # get the main webapp (can't actually see it yet, so flying blind here)
+    - name: clone the main KA webapp repo
+      git: repo=https://github.com/khan/webapp.git dest={{ka.dest}}/webapp
+      ignore_errors: yes #private repo
+
+    # there are a bunch of CLI devtools that just get cloned to localhost, later
+    # we will presumably want to add them to $PATH.
+    - name: clone KA devtools repos
+      git: repo='https://github.com/{{item}}.git' dest='{{ka.dest}}/devtools/{{item | basename}}'
+      with_items:
+        - khan/khan-linter
+        - khan/libphutil
+        - khan/arcanist
+
+    - name: clone the dotfiles repo so we can nab some files from it
+      git: repo='https://github.com/khan/khan-dotfiles.git' dest='{{ka.dest}}/khan-dotfiles'
+
+    # TODO: install hooks to prevent dangerous things in main repo
+
+    # TODO: override user.email to be @khanacademy.org ALL khan repos
+    - name: override user.email for KA webapp
+      command: git config --local user.email {{ka.email}}
+      args:
+        chdir: "{{ka.dest}}/webapp"
+
+
+    # DEPRECATED: make a virtualenv for KA dev, so anything installed can easily be blown away
+    # not needed as it seems this automatically happens with ansible first time used (boss!)
+    # - name: create khan virtualenv
+    #   command: virtualenv -p python2.7 --no-site-packages {{ka.venv}} creates={{ka.venv}}
+
+    # TODO: this one is a makefile, need to be able to see it first!
+    # urgh, this is a setup script I think? Probably need to make sure venv is activated
+    # or it will clobber stuff?
+    # - name: requirements for khan webapp
+    # ( cd "$ROOT/khan/webapp" && make install_deps )
+
+    - name: bootstrap requirements for khan exercises
+      pip: requirements='{{ka.dest}}/webapp/khan-exercises/requirements.txt' virtualenv={{ka.venv}}
+      ignore_errors: yes # private repo
+
+    - name: bootstrap requirements for khan linter
+      pip: requirements='{{ka.dest}}/devtools/khan-linter/requirements.txt' virtualenv={{ka.venv}}
