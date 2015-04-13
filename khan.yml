@@ -75,7 +75,13 @@
     - name: clone the dotfiles repo so we can nab some files from it
       git: repo='https://github.com/khan/khan-dotfiles.git' dest='{{ka.dest}}/khan-dotfiles'
 
-    # TODO: install hooks to prevent dangerous things in main repo
+    - name: install hooks to prevent dangerous actions in main repo
+      file: src={{ka.dest}}/khan-dotfiles/{{item.src}}
+            dest={{ka.dest}}/webapp/.git/hooks/{{item.dest}}
+            state=link
+      with_items:
+        - { src: 'no-commit-to-master', dest: 'pre-commit' }
+        - { src: 'no-push-to-master',   dest: 'pre-push' }
 
     # TODO: override user.email to be @khanacademy.org ALL khan repos
     # TODO: only execute first time after cloning repo?
