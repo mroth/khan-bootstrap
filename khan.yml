@@ -48,15 +48,36 @@
       email: "{{ansible_user_id}}@khanacademy.org"
 
   tasks:
-    # instead of easy_installing pip, use the homebrew provided python which
-    # already includes it. this way we always have the most recent version of
-    # python27 anyhow instead of depending on whatever OSX provides, and gives
-    # a more sudo-less environment.
-    - name: install brew python27 (includes pip)
-      homebrew: name=python  state=present
+    # DEPRECATED: instead of easy_installing pip, use the homebrew provided
+    # python which already includes it. this way we always have the most recent
+    # version of python27 anyhow instead of depending on whatever OSX provides,
+    # and gives a more sudo-less environment. </DEPRECATED>
+    #
+    # ...So it turns out parts of the KA githooks currently break if there is a
+    # python link in /usr/local/bin, due to that path being prepended to the
+    # $PATH during execution, leading to the active virtualenv for the shell
+    # being ignored. So for now we have to ensure homebrew python is NOT
+    # installed, until we figure out the issue with recent versions of git.
+    - name: ensure homebrew python is not installed
+      homebrew: name=python  state=absent
+      register: unbrew
+
+    # if we just uninstalled the homebrew version of python, we need to wipe
+    # the virtualenv, so that i will get recreated with system python instead
+    - name: wipe virtualenv if brewpython was just uninstalled
+      when: unbrew|changed
+      file: path={{ka.venv}} state=absent
+
+    # install pip & virtualenv for system python
+    # since we are using system python this unfortunately requires sudo
+    - easy_install: name=pip
+      sudo: yes
+      tags: sudoed
+    - pip:  name=virtualenv state=present
+      sudo: yes
+      tags: sudoed
 
     # other precursor platforms required for KA deps (mostly pkg mgrs)
-    - pip:      name=virtualenv state=present # virtualenv to manage py env
     - gem:      name=bundler    state=present # bundler for rubygems
     - homebrew: name=node       state=present # node for npm modules
 
