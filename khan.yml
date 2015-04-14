@@ -142,4 +142,4 @@
     # instructions if not found.
 
     - name: specify khan-linter location for arc
-      command: "{{ka.dest}}/devtools/arcanist/khan-bin/arc set-config linter.scriptandregex.script '{ka.dest}/devtools/khan-linter/runlint.py --always-exit-0 --blacklist=yes'"
+      command: "{{ka.dest}}/devtools/arcanist/khan-bin/arc set-config linter.scriptandregex.script \"{{ka.dest}}/devtools/khan-linter/runlint.py --always-exit-0 --blacklist=yes\""
