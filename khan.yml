@@ -141,5 +141,8 @@
     # TODO: check for S3 credentials needed by bigfile, give manual setup
     # instructions if not found.
 
+    - name: install technicolor-yawn for pretty appengine logs
+      pip: name=technicolor-yawn virtualenv={{ka.venv}}
+
     - name: specify khan-linter location for arc
       command: "{{ka.dest}}/devtools/arcanist/khan-bin/arc set-config linter.scriptandregex.script \"{{ka.dest}}/devtools/khan-linter/runlint.py --always-exit-0 --blacklist=yes\""
