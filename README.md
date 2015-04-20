@@ -1,4 +1,4 @@
-# khan-bootslap
+# khan-bootstrap
 ![logo](https://www.kastatic.org/images/domains/hopper_with_laptop.png)
 > A minimal setup for hacking the Khan Academy codebase.
 
